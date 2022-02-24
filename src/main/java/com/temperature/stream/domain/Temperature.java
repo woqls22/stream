@@ -1,10 +1,8 @@
 package com.temperature.stream.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Required;
 
+//@Getter -> getter는 public level에서만 접근가능하다..
 public class Temperature {
     private final double value;
 

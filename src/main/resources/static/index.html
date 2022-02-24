@@ -9,7 +9,6 @@
     }
     var eventSource = new EventSource("/temperature-stream");
     eventSource.onmessage = e => {
-        console.log(e)
         const t = JSON.parse(e.data);
         const fixed = Number(t.value).toFixed(2);
         add('Temperature : ' + fixed + 'C');

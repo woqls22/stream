@@ -10,7 +10,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Component
-
 public class TemperatureSensor {
     private final ApplicationEventPublisher publisher;
     private final Random rnd = new Random(); // 난수 생성
@@ -28,7 +27,7 @@ public class TemperatureSensor {
     private void probe(){
         double temperature = 16+rnd.nextGaussian()*10;
         publisher.publishEvent(new Temperature(temperature)); // event발행
-        
+
         // 랜덤한 지연시간을 두고 다음 읽기 스케쥴 예약
         executor.schedule(this::probe, rnd.nextInt(5000), TimeUnit.MILLISECONDS);
     }
