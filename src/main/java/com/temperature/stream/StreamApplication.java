@@ -10,24 +10,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-@EnableAsync // 비동기 실행이 가능한 스프링 부트 어플리케이션
+// @EventListener애노테이션을 사용하지 않고, @Async에 대한 의존성이없어짐.
 @SpringBootApplication
 public class StreamApplication implements AsyncConfigurer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StreamApplication.class, args);
-	}
-	@Override
-	public Executor getAsyncExecutor(){
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(2);
-		executor.setMaxPoolSize(100); // 최대 100개의 스레드풀 설정
-		executor.setQueueCapacity(5);
-		executor.initialize();
-		return executor;
-	}
-	@Override
-	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler(){
-		return new SimpleAsyncUncaughtExceptionHandler(); // 비동기 실행중 발행한 예외에 대한 예외처리
 	}
 }

@@ -1,34 +1,27 @@
 package com.temperature.stream.domain;
 
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import rx.Observable;
 
-import javax.annotation.PostConstruct;
 import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Component // 스프링 빈으로 등록
 public class TemperatureSensor {
-    private final ApplicationEventPublisher publisher;
-    private final Random rnd = new Random(); // 난수 생성
-    // 이벤트 생성 프로세스는 별도 스레드에서 발생
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final Random random = new Random();
 
-    public TemperatureSensor(ApplicationEventPublisher publisher){
-        this.publisher =publisher;
+    private final Observable<Temperature> dataStream =
+        Observable
+                .range(0, Integer.MAX_VALUE) // 팩토리메서드 ; 무한대의 스트림 생성
+                .concatMap(tick -> Observable  // concatMap : tick객체를 수신하여 Observable스트림 변환, 함수를 적용한다음 결과 스트림에 결합
+                        .just(tick)
+                        .delay(random.nextInt(5000),TimeUnit.MILLISECONDS) // 임의의 지연 후
+                        .map(tickValue->this.probe())) // tickValue에 probe메서드를 호출, 결합 (온도 데이터 수신)
+                .publish().refCount();
+    private Temperature probe(){
+        return new Temperature(16+random.nextGaussian()*10);
     }
-
-    @PostConstruct
-    public void startProcessing(){ // 빈이 생성될 때 호출되어 온도 시나리오의 전체 시퀀스를 주입
-        this.executor.schedule(this::probe, 1, TimeUnit.SECONDS);
-    }
-    private void probe(){
-        double temperature = 16+rnd.nextGaussian()*10;
-        publisher.publishEvent(new Temperature(temperature)); // event발행
-
-        // 랜덤한 지연시간을 두고 다음 읽기 스케쥴 예약
-        executor.schedule(this::probe, rnd.nextInt(5000), TimeUnit.MILLISECONDS);
+    public Observable<Temperature> temperatureStream(){ // 데이터 스트림 반환
+        return dataStream;
     }
 }
